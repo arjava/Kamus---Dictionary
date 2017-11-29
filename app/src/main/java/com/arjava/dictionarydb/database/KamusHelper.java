@@ -10,31 +10,29 @@ import com.arjava.dictionarydb.model.Model;
 import java.util.ArrayList;
 
 /**
- * Created by arjava on 11/28/17.
+ * Created by arjava on 11/29/17.
  */
 
-public class DictionaryHelper {
+public class KamusHelper {
 
-    private static String TABLE_DICTIONARY = DatabaseHelper.TABLE_DICTIONARY;
-//    private static Cursor insertTransaction;
+    private static String TABLE_KAMUS = DatabaseHelper.TABLE_KAMUS;
     private Context context;
     private DatabaseHelper databaseHelper;
-
     private SQLiteDatabase sqLiteDatabase;
 
-    public DictionaryHelper(Context context) {
+    public KamusHelper(Context context, DatabaseHelper databaseHelper, SQLiteDatabase sqLiteDatabase) {
         this.context = context;
     }
 
-    public DictionaryHelper open() throws SQLiteException {
+    public KamusHelper open() throws SQLiteException {
         databaseHelper = new DatabaseHelper(context);
         sqLiteDatabase = databaseHelper.getWritableDatabase();
         return this;
     }
 
     public Cursor searchQueryByName(String query) {
-        return sqLiteDatabase.rawQuery("SELECT * FROM "+ TABLE_DICTIONARY + " WHERE " + DatabaseHelper.FIELD_WORD +
-        " LIKE '%" + query + "%' ", null);
+        return sqLiteDatabase.rawQuery("SELECT * FROM "+ TABLE_KAMUS + " WHERE " + DatabaseHelper.FIELD_WORD +
+                " LIKE '%" + query + "%' ", null);
     }
 
     public String getData(String word) {
@@ -72,7 +70,7 @@ public class DictionaryHelper {
     }
 
     public Cursor queryAllData(){
-        return sqLiteDatabase.rawQuery("SELECT * FROM " + TABLE_DICTIONARY + " ORDER BY " + DatabaseHelper.FIELD_ID/*+" ASC limit 20"*/, null);
+        return sqLiteDatabase.rawQuery("SELECT * FROM " + TABLE_KAMUS + " ORDER BY " + DatabaseHelper.FIELD_ID/*+" ASC limit 20"*/, null);
     }
 
     public ArrayList<Model> getAllData(){

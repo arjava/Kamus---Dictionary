@@ -1,6 +1,8 @@
 package com.arjava.dictionarydb.activity;
 
 import android.content.Intent;
+import android.content.res.Resources;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,7 +14,15 @@ import android.widget.ProgressBar;
 import com.arjava.dictionarydb.MainActivity;
 import com.arjava.dictionarydb.R;
 import com.arjava.dictionarydb.database.DictionaryHelper;
+import com.arjava.dictionarydb.database.KamusHelper;
+import com.arjava.dictionarydb.model.Model;
+import com.arjava.dictionarydb.sharedpref.AppPreference;
 import com.arjava.dictionarydb.sharedpref.PrefManager;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 public class Preload extends AppCompatActivity {
 
@@ -59,7 +69,82 @@ public class Preload extends AppCompatActivity {
         finish();
     }
 
-    private class LoadData {
+    private class LoadData extends AsyncTask<Void, Integer, Void> {
         DictionaryHelper dictionaryHelper;
+        KamusHelper kamusHelper;
+        AppPreference appPreference;
+
+        double progress;
+        double max_progress = 100;
+        //sebelum menjalankan kode secara terpisah
+
+
+        @Override
+        protected void onPreExecute() {
+            dictionaryHelper = new DictionaryHelper(Preload.this);
+            kamusHelper = new KamusHelper(Preload.this);
+            appPreference = new AppPreference(Preload.this);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            Boolean firstRun = appPreference.getFirstRun();
+            Log.d(TAG, "First RUN : "+firstRun);
+            progress = 20;
+
+            if (firstRun){
+                ArrayList<Model> indModels = preLoadRawEnglish();
+                ArrayList<Model> engModels = preLoadRawIndonesian();
+            }
+        }
     }
+
+    private ArrayList<Model> preLoadRawEnglish() {
+        ArrayList<Model> dictionaryModel = new ArrayList<>();
+        String line = null;
+        BufferedReader reader;
+        try {
+            Resources resources = getResources();
+            InputStream raw_dict = resources.openRawResource(R.raw.english_indonesia);
+
+            reader = new BufferedReader(new InputStreamReader(raw_dict));
+            int count = 0;
+            do {
+                line = reader.readLine();
+                String[] split = line.split("\t");
+                Model dictionaryModels;
+                dictionaryModels = new Model(split[0], split[1]);
+                dictionaryModel.add(dictionaryModels);
+                count++;
+            }while (line != null);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return dictionaryModel;
+    }
+
+    private ArrayList<Model> preLoadRawIndonesian() {
+        ArrayList<Model> kamusModel = new ArrayList<>();
+        String line = null;
+        BufferedReader reader;
+        try {
+            Resources resources = getResources();
+            InputStream raw_kamus = resources.openRawResource(R.raw.indonesia_english);
+
+            reader = new BufferedReader(new InputStreamReader(raw_kamus));
+            int count = 0;
+            do {
+                line = reader.readLine();
+                String[] split = line.split("\t");
+                Model kamusModels;
+                kamusModels = new Model(split[0], split[1]);
+                kamusModel.add(kamusModels);
+                count++;
+            }while (line != null);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return kamusModel;
+    }
+
 }
